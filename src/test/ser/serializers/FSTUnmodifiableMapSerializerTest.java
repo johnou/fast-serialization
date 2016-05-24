@@ -15,9 +15,9 @@ package ser.serializers;
 
 import org.junit.Test;
 import org.nustaq.serialization.FSTConfiguration;
-import org.nustaq.serialization.serializers.FSTUnmodifiableMapSerializer;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -29,8 +29,14 @@ import static org.junit.Assert.assertTrue;
 @SuppressWarnings("unchecked")
 public class FSTUnmodifiableMapSerializerTest {
 
-    static final String TEST_VALUE = "TestValue";
-    static final String TEST_KEY = "TestKey";
+    private static final Class<?> UNMODIFIABLE_MAP_CLASS;
+
+    static {
+        UNMODIFIABLE_MAP_CLASS = Collections.unmodifiableMap(new HashMap()).getClass();
+    }
+
+    private static final String TEST_VALUE = "TestValue";
+    private static final String TEST_KEY = "TestKey";
 
     @Test
     public void shouldSerializeUnmodifiableMap() throws ClassNotFoundException {
@@ -41,7 +47,7 @@ public class FSTUnmodifiableMapSerializerTest {
         byte[] bytes = conf.asByteArray((map));
         map = (Map<String, String>) conf.asObject(bytes);
         //then
-        assertTrue(FSTUnmodifiableMapSerializer.UNMODIFIABLE_MAP_CLASS.isAssignableFrom(map.getClass()));
+        assertTrue(UNMODIFIABLE_MAP_CLASS.isAssignableFrom(map.getClass()));
         assertEquals(1, map.size());
         assertTrue(map.containsKey(TEST_KEY));
         assertTrue(map.containsValue(TEST_VALUE));

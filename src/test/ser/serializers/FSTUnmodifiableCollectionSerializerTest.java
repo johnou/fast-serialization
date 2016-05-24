@@ -15,11 +15,8 @@ package ser.serializers;
 
 import org.junit.Test;
 import org.nustaq.serialization.FSTConfiguration;
-import org.nustaq.serialization.serializers.FSTUnmodifiableCollectionSerializer;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -30,18 +27,44 @@ import static org.junit.Assert.assertTrue;
 @SuppressWarnings("unchecked")
 public class FSTUnmodifiableCollectionSerializerTest {
 
-    static final String TEST_VALUE = "TestValue";
+    private static final Class<?> UNMODIFIABLE_COLLECTION_CLASS;
+    private static final Class<?> UNMODIFIABLE_LIST_CLASS;
+    private static final Class<?> UNMODIFIABLE_SET_CLASS;
+
+    static {
+        UNMODIFIABLE_COLLECTION_CLASS = Collections.unmodifiableCollection(new ArrayList()).getClass();
+        UNMODIFIABLE_LIST_CLASS = Collections.unmodifiableList(new ArrayList()).getClass();
+        UNMODIFIABLE_SET_CLASS = Collections.unmodifiableSet(new HashSet()).getClass();
+    }
+
+    private static final String TEST_VALUE = "TestValue";
+
+    @Test
+    public void shouldSerializeUnmodifiableCollection() throws ClassNotFoundException {
+        //given
+        Collection<String> list = Collections.unmodifiableCollection(Collections.singletonList(TEST_VALUE));
+        FSTConfiguration conf = FSTConfiguration.createJsonNoRefConfiguration();
+        //when
+        list = (Collection<String>) conf.asObject(conf.asByteArray((list)));
+        //then
+        assertTrue(UNMODIFIABLE_COLLECTION_CLASS.isAssignableFrom(list.getClass()));
+        assertEquals(1, list.size());
+        assertTrue(list.contains(TEST_VALUE));
+    }
 
     @Test
     public void shouldSerializeUnmodifiableList() throws ClassNotFoundException {
         //given
         List<String> list = Collections.unmodifiableList(Collections.singletonList(TEST_VALUE));
         FSTConfiguration conf = FSTConfiguration.createJsonNoRefConfiguration();
+
+        // FIXME: java.lang.RuntimeException: cannot support legacy JDK serialization methods in crossplatform mode.
+        // FIXME: Define a serializer for this class java.util.Collections$UnmodifiableRandomAccessList
+
         //when
-        byte[] bytes = conf.asByteArray((list));
-        list = (List<String>) conf.asObject(bytes);
+        list = (List<String>) conf.asObject(conf.asByteArray((list)));
         //then
-        assertTrue(FSTUnmodifiableCollectionSerializer.UNMODIFIABLE_LIST_CLASS.isAssignableFrom(list.getClass()));
+        assertTrue(UNMODIFIABLE_LIST_CLASS.isAssignableFrom(list.getClass()));
         assertEquals(1, list.size());
         assertTrue(list.contains(TEST_VALUE));
     }
@@ -55,7 +78,7 @@ public class FSTUnmodifiableCollectionSerializerTest {
         byte[] bytes = conf.asByteArray((set));
         set = (Set<String>) conf.asObject(bytes);
         //then
-        assertTrue(FSTUnmodifiableCollectionSerializer.UNMODIFIABLE_SET_CLASS.isAssignableFrom(set.getClass()));
+        assertTrue(UNMODIFIABLE_SET_CLASS.isAssignableFrom(set.getClass()));
         assertEquals(1, set.size());
         assertTrue(set.contains(TEST_VALUE));
     }

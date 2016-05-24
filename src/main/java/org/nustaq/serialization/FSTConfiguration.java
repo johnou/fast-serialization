@@ -218,8 +218,8 @@ public class FSTConfiguration {
         reg.putSerializer(Throwable.class, new FSTCPThrowableSerializer(), true);
 
         // for crossplatform fallback does not work => register default serializers for collections and subclasses
-        reg.putSerializer(AbstractCollection.class, new FSTCollectionSerializer(), true); // subclass should register manually
-        reg.putSerializer(AbstractMap.class, new FSTMapSerializer(), true); // subclass should register manually
+        reg.putSerializer(AbstractCollection.class, new FSTCollectionSerializer(), false); // subclass should register manually
+        reg.putSerializer(AbstractMap.class, new FSTMapSerializer(), false); // subclass should register manually
 
         res.registerCrossPlatformClassMapping(new String[][]{
                 {"map", HashMap.class.getName()},
@@ -291,12 +291,6 @@ public class FSTConfiguration {
 
     private static FSTConfiguration constructJsonConf(boolean prettyPrint, boolean shareReferences, ConcurrentHashMap<FieldKey, FSTClazzInfo.FSTFieldInfo> shared) {
         final FSTConfiguration conf = createMinBinConfiguration(shared);
-
-        FSTSerializerRegistry reg = conf.serializationInfoRegistry.getSerializerRegistry();
-        reg.putSerializer(FSTUnmodifiableCollectionSerializer.UNMODIFIABLE_COLLECTION_CLASS, new FSTUnmodifiableCollectionSerializer(), true);
-        reg.putSerializer(FSTUnmodifiableCollectionSerializer.UNMODIFIABLE_LIST_CLASS, new FSTUnmodifiableCollectionSerializer(), true);
-        reg.putSerializer(FSTUnmodifiableCollectionSerializer.UNMODIFIABLE_SET_CLASS, new FSTUnmodifiableCollectionSerializer(), true);
-        reg.putSerializer(FSTUnmodifiableMapSerializer.UNMODIFIABLE_MAP_CLASS, new FSTUnmodifiableMapSerializer(), true);
 
         conf.type = prettyPrint ? ConfType.JSONPRETTY : ConfType.JSON;
         JsonFactory fac;
